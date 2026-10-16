@@ -17,6 +17,11 @@ Built by following Okta's [How to Create a Secure CI/CD Pipeline Using Okta Terr
 - **Remote state with locking:** S3 backend with a DynamoDB lock table, separate state keys for dev and prod.
 - **GitOps promotion flow:** push to `develop` → apply to dev; PR to `main` → plan for prod; merge → apply to prod.
 - **No environment identifiers in source:** the Okta org, client ID and key ID are injected as `TF_VAR_*` from GitHub Actions secrets, so they are masked in public logs.
+- **Automated security scanning:**
+  - **CodeQL** scans the GitHub Actions workflows.
+  - **Checkov** scans the Terraform and the workflows for misconfigurations.
+  - Both report into GitHub's Code scanning tab.
+  - Third-party actions are pinned to commit SHAs.
 
 ![Workflow](assets/workflow.png)
 
@@ -27,6 +32,7 @@ Built by following Okta's [How to Create a Secure CI/CD Pipeline Using Okta Terr
   push-develop.yml   # Dev Build: plan + apply on push to develop
   pr-main.yml        # Prod Plan: plan only on PRs into main
   push-main.yml      # Prod Build: plan + apply on push to main
+  checkov.yml        # Checkov IaC scan → SARIF → Code scanning
 terraform/
   main.tf            # providers, S3 backend, Secrets Manager lookup
   variables.tf

@@ -1,0 +1,37 @@
+name: Checkov IaC Scan
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  checkov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write  # upload SARIF to the Code scanning tab
+      actions: read
+    steps:
+    # Actions are pinned to full commit SHAs so a moved tag can't change what runs
+    - name: Checkout
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+    # Scan Terraform and the GitHub Actions workflows themselves
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # v12.3134.0
+      with:
+        directory: .
+        framework: terraform,github_actions
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+        # Report findings without blocking the pipeline; triage happens in Code scanning
+        soft_fail: true
+
+    - name: Upload SARIF to Code scanning
+      if: always()
+      uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
+      with:
+        sarif_file: results.sarif
+        category: checkov
