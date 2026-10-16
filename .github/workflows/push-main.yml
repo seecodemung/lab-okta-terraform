@@ -5,12 +5,20 @@ on:
 jobs:
   prod_build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # One run at a time per state file so jobs never fight over the lock
+    concurrency:
+      group: terraform-prod
+      cancel-in-progress: false
     permissions:
       id-token: write
       contents: read
     env:
-      TF_LOG: INFO
       TF_INPUT: false
+      # Okta identifiers come from repository secrets (masked in logs), not committed files
+      TF_VAR_okta_org_name: ${{ secrets.OKTA_ORG_NAME }}
+      TF_VAR_okta_client_id: ${{ secrets.OKTA_CLIENT_ID }}
+      TF_VAR_okta_private_key_id: ${{ secrets.OKTA_PRIVATE_KEY_ID }}
     defaults:
       run:
         shell: bash
@@ -18,23 +26,25 @@ jobs:
     # Checkout the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
-   # Get AWS Credentials via OIDC
+
+    # Get AWS Credentials via OIDC
     - name: Configure aws credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ vars.AWS_REGION }}
         audience: sts.amazonaws.com
-  # Install Terraform CLI
+        mask-aws-account-id: true
+
+    # Install Terraform CLI
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.8
- # Run Terraform commands
+
+    # Run Terraform commands
     - name: Terraform Init
       id: init
-      env:
-        TF_VAR_AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
       run: terraform -chdir="terraform" init -backend-config=backend-prod.conf
     - name: Terraform Plan
       id: plan

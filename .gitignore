@@ -1,0 +1,23 @@
+# Terraform working directories and local state
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local-only variable overrides
+*.auto.tfvars
+*.tfvars.local
+
+# Keys and credentials - never commit
+*.pem
+*.key
+*.p8
+*.pfx
+.env
+.env.*
