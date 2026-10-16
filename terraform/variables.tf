@@ -33,6 +33,6 @@ variable "okta_secret_id" {
   type        = string
 }
 
-/*variable "okta_group_name" {
+variable "okta_group_name" {
   type = string
-}*/
+}

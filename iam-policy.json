@@ -1,0 +1,43 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "TerraformStateBucketList",
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::lab-okta-terraform-state"
+        },
+        {
+            "Sid": "TerraformStateObjects",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::lab-okta-terraform-state/*"
+            ]
+        },
+        {
+            "Sid": "TerraformStateLock",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:DescribeTable",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:<AWS_REGION>:<AWS_ACCOUNT_ID>:table/lab-okta-terraform"
+            ]
+        },
+        {
+            "Sid": "ReadOktaPrivateKey",
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": [
+                "arn:aws:secretsmanager:<AWS_REGION>:<AWS_ACCOUNT_ID>:secret:lab-okta-terraform-*"
+            ]
+        }
+    ]
+}

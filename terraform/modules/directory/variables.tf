@@ -1,3 +1,3 @@
-/*variable "okta_group_name" {
+variable "okta_group_name" {
   type = string
-}*/
+}

@@ -33,5 +33,5 @@ data "aws_secretsmanager_secret_version" "okta_private_key" {
 
 module "directory" {
   source = "./modules/directory"
-  #okta_group_name = var.okta_group_name
+  okta_group_name = var.okta_group_name
 }
